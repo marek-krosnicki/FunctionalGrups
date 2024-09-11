@@ -15,9 +15,8 @@ import matplotlib.pyplot as plt
 from sklearn import metrics
 from torch.optim.lr_scheduler import LambdaLR
 from tqdm import tqdm
-import warnings
-
-warnings.filterwarnings("ignore", category=UserWarning) 
+from efficient_kan import KAN
+import collections.abc as c
 
 
 # In[2]:
@@ -54,22 +53,9 @@ func_group_names
 
 
 class FunctionalGroupsDataset(Dataset):
-    '''
-    PyTorch compatible dataset of functional groups files
-
-    Parameters
-    ----------
-
-    func_group : str
-        Name of the functional group to retrieve data from.
-    
-    convert_to : str, default None
-        Converts all data to specified data type.
-
-    '''
-    def __init__(self, func_group: str, convert_to: str = None) -> None:
+    def __init__(self, func_group, convert_to: str = None) -> None:
         self.convert_to = convert_to
-        self.func_group_number = np.where(func_group_names.values == func_group)[0][0]
+        self.func_group_number = np.where(func_group_names.values==func_group)[0][0]
         self.main_dir = os.path.join('..', 'ALL')
         self.func_group = func_group
 
@@ -85,13 +71,13 @@ class FunctionalGroupsDataset(Dataset):
 
         #NIST IDs of specific functional group that passed preprocessing
         to_sample = pd.merge(preprocessed_data_dir, func_group_data_dir, on = [0, 0], how = 'outer', indicator = True).query('_merge=="left_only"')[0]
-
+        
         #Equinumerous dataset of preprocessed functional group NIST IDs and shuffled from every other functional groups
         if len(to_sample) < len(func_group_data_dir):
             func_group_data_dir = func_group_data_dir.sample(len(to_sample))
-            self.data = pd.concat([to_sample.sample(len(to_sample)), func_group_data_dir], axis = 0)
+            self.data = pd.concat([to_sample.sample(len(to_sample)), func_group_data_dir], axis=0)
         else:
-            self.data = pd.concat([to_sample.sample(len(func_group_data_dir)), func_group_data_dir], axis = 0)
+            self.data = pd.concat([to_sample.sample(len(func_group_data_dir)), func_group_data_dir], axis=0)
 
     def __len__(self):
         return len(self.data)
@@ -99,7 +85,7 @@ class FunctionalGroupsDataset(Dataset):
     def __getitem__(self, index):
         file_path = os.path.join(self.main_dir, 'preprocessed_data', self.data.iloc[index][0])
         file = pd.read_csv(file_path)
-        spectra_type = file['spectraType'][0]
+        spectraType = file['spectraType'][0]
 
 
 
@@ -110,19 +96,19 @@ class FunctionalGroupsDataset(Dataset):
         elif self.convert_to.lower() not in ('absorbance', 'absorbancja', 'transmittance', 'transmitancja'):
             raise ValueError(f'Cant convert to {self.convert_to}.')
 
-        elif self.convert_to.lower() != str(spectra_type).lower():
-            spectra = torch.nan_to_num(torch.tensor(np.abs(1 - file['y'].values), requires_grad=True)).to(torch.float)
+        elif self.convert_to.lower() != str(spectraType).lower():
+            spectra = torch.nan_to_num(torch.tensor(np.abs(1-file['y'].values), requires_grad=True)).to(torch.float)
         
         else:
             spectra = torch.nan_to_num(torch.tensor(file['y'].values, requires_grad=True)).to(torch.float)
 
         #Reshapes it as required
-        spectra = spectra.reshape(1, 1, 3106)
+        spectra = spectra.reshape(1,1,3106)
         
         #Prevents unknown problem with NaN from before
-        func_group = torch.nan_to_num(torch.tensor(file['funcGroups'].values[self.func_group_number], requires_grad=True)).to(torch.float)
+        funcGroup = torch.nan_to_num(torch.tensor(file['funcGroups'].values[self.func_group_number], requires_grad=True)).to(torch.float)
 
-        return spectra, func_group
+        return spectra, funcGroup
 
 
 # In[4]:
@@ -155,7 +141,7 @@ def createHashmaps(test_ratio: float = 0.3,
 
     func_groups_data, func_groups_datasets, func_groups_dataloaders = {}, {}, {}
     for data_directory in os.listdir(func_groups_path):
-        dataset = FunctionalGroupsDataset(data_directory, convert_to = 'absorbance')
+        dataset = FunctionalGroupsDataset(data_directory, convert_to='absorbance')
 
         training_dataset, test_dataset = random_split(dataset, [1 - test_ratio, test_ratio], torch.Generator())
 
@@ -179,21 +165,19 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # In[8]:
 
 
-class CNN(torch.nn.Module):
+class CNN_KAN(torch.nn.Module):
     '''
-    Functional groups recognition CNN model.
+    Functional groups recognition CNN-KAN model.
     '''
-    def __init__(self) -> None:
-        super(CNN, self).__init__()
+    def __init__(self, kan_layers: list) -> None:
+        super(CNN_KAN, self).__init__()
+
 
         kernel_size_1 = 5
         stride_conv_1 = 1
 
         stride_pool_1 = 3
         filter_size_1 = 3
-
-        num_out_3 = 20
-        num_out_4 = 10
 
         self.conv_1 = torch.nn.Conv1d(1, 10, kernel_size = kernel_size_1, stride = stride_conv_1)
 
@@ -207,13 +191,7 @@ class CNN(torch.nn.Module):
 
         self.pool_3 = torch.nn.MaxPool1d(filter_size_1, stride_pool_1)
 
-
-
-        self.linear_1 = torch.nn.Linear(1130, num_out_3)
-
-        self.linear_2 = torch.nn.Linear(num_out_3, num_out_4)
-
-        self.linear_out = torch.nn.Linear(num_out_4, 1)
+        self.kan = KAN([1130] + kan_layers).to(device)
 
 
     def forward(self, x):
@@ -231,38 +209,30 @@ class CNN(torch.nn.Module):
         out = F.tanh(out)
         out = self.pool_3(out)
 
-
         out = out.reshape(x.shape[0], 1, out.shape[2] * out.shape[1])
 
-        
-        out = self.linear_1(out)
-        out = F.leaky_relu(out)
-
-        out = self.linear_2(out)
-        out = F.selu(out)
-
-        out = self.linear_out(out)
+        out = self.kan(out)
         out = F.sigmoid(out)
-
         return out.squeeze(1)
 
     
 def train(num_epochs: int, 
           loss_func, 
-          group: str,
+          group: str, 
           data_loaders: dict,
-          weight_decay: float,
-          lambda_lr: float,
+          weight_decay: float, 
+          lambda_lr: float, 
           learning_rate: float = 1e-6, 
+          kan_layers: c.Iterable = [5, 5, 1], 
           seed: int = 42, 
-          plot: bool = False,
+          plot: bool = False, 
           save: bool = False, 
-          disable_verbose: bool = False,
+          disable_verbose: bool = False, 
           iter: int = 0, 
-          save_dirpath: str|os.PathLike|bytes = None) -> CNN:
-
+          save_dirpath: str|os.PathLike|bytes = None) -> CNN_KAN:
+    
     '''
-    Training of the functional groups finding CNN model
+    Training of the functional groups finding CNN-KAN model
 
     Parameters
     ----------
@@ -306,11 +276,11 @@ def train(num_epochs: int,
     save_dirpath : str|os.PathLike|bytes, default None
         Directory path to save the plot.
     '''
-
+     
     train_losses, test_losses = [], []
 
 
-    model = CNN().to(device)
+    model = CNN_KAN(kan_layers).to(device)
 
     torch.manual_seed(seed)
 
@@ -321,7 +291,7 @@ def train(num_epochs: int,
     for epoch in range(num_epochs):
         model.train()
         train_loss = 0.
-        with tqdm(data_loaders[group]['training'], disable=disable_verbose) as pbar:
+        with tqdm(data_loaders[group]['training'], disable = disable_verbose) as pbar:
             f1 = 0
             predicted_well_count = np.zeros(1)
             all_func_groups_count = np.zeros(1)
@@ -344,6 +314,7 @@ def train(num_epochs: int,
                 f1 = metrics.f1_score(torch.Tensor.cpu(func_group_batch).detach().numpy(), torch.Tensor.cpu(torch.round(output)).detach().numpy())
                 pbar.set_postfix(epoch = epoch, loss = train_loss, accuracy = (predicted_well_count/all_func_groups_count).item(), f1 = f1, lr = optimizer.param_groups[0]['lr'])
 
+            
             train_loss /= len(data_loaders[group]['training'])
             train_losses.append(train_loss)
 
@@ -365,28 +336,26 @@ def train(num_epochs: int,
 
                     for i in range(output.shape[0]):
                         predicted_well = ((torch.round(output[i]) == func_group_batch[i]) * 1 * func_group_batch[i]).item()
+
                         predicted_well_count += predicted_well
                         all_func_groups_count += func_group_batch[i].item()
-
                     f1 = metrics.f1_score(torch.Tensor.cpu(func_group_batch).detach().numpy(), torch.Tensor.cpu(torch.round(output)).detach().numpy())
                     tbar.set_postfix(epoch = epoch, loss = test_loss, accuracy = (predicted_well_count/all_func_groups_count).item(), f1 = f1)
 
-                
                 test_loss /= len(data_loaders[group]['test'])
                 test_losses.append(test_loss)
 
         scheduler.step()
         
 
-
     if plot:
-        plt.plot(train_losses, label='training loss')
-        plt.plot(test_losses, label='test loss')
+        plt.plot(train_losses, label = 'training loss')
+        plt.plot(test_losses, label = 'test loss')
         plt.legend()
         plt.title(f'{group}')
         plt.plot()
         plt.show()
-    
+
     if save:
         plt.savefig(os.path.join(save_dirpath, f"Learning_progress_{group}_{str(iter)}.png"))
 
@@ -396,7 +365,7 @@ def train(num_epochs: int,
 # In[9]:
 
 
-def trainingMetrics(model: CNN, 
+def trainingMetrics(model: CNN_KAN, 
                  group: str,
                  data_loaders: dict,
                  iter: int = 0,
@@ -431,21 +400,21 @@ def trainingMetrics(model: CNN,
         predicted_well_count = np.zeros(1)
         all_func_groups_count = np.zeros(1)
 
-        for y_batch, func_group in data_loaders[group]['training']:
-            y_batch, func_group = y_batch.to(device), func_group.to(device)
+        for y_batch, funcGroup in data_loaders[group]['training']:
+            y_batch, funcGroup = y_batch.to(device), funcGroup.to(device)
 
             outputs = model(y_batch)
             outputs = torch.Tensor.cpu(outputs).detach().numpy()
-            func_group = torch.Tensor.cpu(func_group).detach().numpy()
+            funcGroup = torch.Tensor.cpu(funcGroup).detach().numpy()
 
             pred.extend(outputs.reshape(-1).round())
-            actual.extend(func_group.reshape(-1))
+            actual.extend(funcGroup.reshape(-1))
 
             for i in range(outputs.shape[0]):
-                predicted_well = (np.round(outputs[i]) == func_group[i]) * 1 * func_group[i]
+                predicted_well = (np.round(outputs[i]) == funcGroup[i]) * 1 * funcGroup[i]
                     
                 predicted_well_count += predicted_well
-                all_func_groups_count += func_group[i]
+                all_func_groups_count += funcGroup[i]
 
         df = pd.concat(
             [
@@ -466,7 +435,7 @@ def trainingMetrics(model: CNN,
         false_negative = confusion_matrix[1][0]
 
         cfMatrixString= f"EM: {true_positive} {true_negative} {false_positive} {false_negative}"
-
+        
         #True Positive Rate - czulosc
         TPR = true_positive / (true_positive + false_negative)
 
@@ -477,7 +446,7 @@ def trainingMetrics(model: CNN,
         cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = [0, 1])
         cm_display.plot()
         accuracy = (true_positive + true_negative) / (true_positive + true_negative + false_positive + false_negative)
-        description = f"Iteration {iter} training. Group {group}. {cfMatrixString} TPR: {round(TPR * 100, 2)}%\tTNR: {round(TNR * 100, 2)}%\taccuracy: {round(accuracy * 100, 2)}%\r\n"
+        description=f"Iteration {iter} training. Group {group}. {cfMatrixString} TPR: {round(TPR * 100, 2)}%\tTNR: {round(TNR * 100, 2)}%\taccuracy: {round(accuracy * 100, 2)}%\r\n"
        
         global summary
         summary += description
@@ -485,14 +454,14 @@ def trainingMetrics(model: CNN,
         if save_dirpath is not None:
             plt.savefig(os.path.join(save_dirpath, f"training_{iter}.png"))
         plt.show()
-
+        
         return df
 
 
 # In[10]:
 
 
-def testMetrics(model: CNN, 
+def testMetrics(model: CNN_KAN, 
                 group: str,
                 data_loaders: dict,
                 iter: int = 0,
@@ -527,22 +496,22 @@ def testMetrics(model: CNN,
         lista_grup = np.zeros(1)
         list_func = np.zeros(1)
 
-        for y_batch, func_group in data_loaders[group]['test']:
-            y_batch, func_group = y_batch.to(device), func_group.to(device)
+        for y_batch, funcGroup in data_loaders[group]['test']:
+            y_batch, funcGroup = y_batch.to(device), funcGroup.to(device)
 
             outputs = model(y_batch)
             outputs = torch.Tensor.cpu(outputs).detach().numpy()
-            func_group = torch.Tensor.cpu(func_group).detach().numpy()
+            funcGroup = torch.Tensor.cpu(funcGroup).detach().numpy()
 
             pred.extend(outputs.reshape(-1).round())
-            actual.extend(func_group.reshape(-1))
+            actual.extend(funcGroup.reshape(-1))
 
 
             for i in range(outputs.shape[0]):
-                predicted_well = (np.round(outputs[i]) == func_group[i])*1 * func_group[i]
+                predicted_well = (np.round(outputs[i]) == funcGroup[i])*1 * funcGroup[i]
                 
                 lista_grup += predicted_well
-                list_func += func_group[i]
+                list_func += funcGroup[i]
 
 
         df = pd.concat(
@@ -554,17 +523,17 @@ def testMetrics(model: CNN,
             ], 
             axis = 1, 
             ignore_index = True)
-        df.columns = ['funcGroup', 'prediction acc', 'predicted well', 'number of groups']
+        df.columns = ['funcGroups', 'prediction acc', 'predicted well', 'number of groups']
 
         confusion_matrix = metrics.confusion_matrix(actual, pred)
 
-        true_negative = confusion_matrix[0][0]
-        true_positive = confusion_matrix[1][1]
-        false_positive = confusion_matrix[0][1]
-        false_negative = confusion_matrix[1][0]
-
+        true_negative=confusion_matrix[0][0]
+        true_positive=confusion_matrix[1][1]
+        false_positive=confusion_matrix[0][1]
+        false_negative=confusion_matrix[1][0]
+        
         cfMatrixString= f"EM: {true_positive} {true_negative} {false_positive} {false_negative}"
-
+     
         #True Positive Rate - czulosc
         TPR = true_positive / (true_positive + false_negative)
 
@@ -590,31 +559,32 @@ def testMetrics(model: CNN,
 # In[11]:
 
 
-#Test to check the model working
+crossEnt = torch.nn.BCELoss()
+group = 'alkene'
 
-'''rossEnt = torch.nn.BCELoss()
-group = 'alkane'
+model = train(num_epochs = 2, 
+            loss_func = crossEnt,
+            group = group,
+            data_loaders = func_groups_dataloaders,
+            weight_decay = 1e-2,
+            lambda_lr = 0.9,
+            learning_rate = 1e-2,
+            kan_layers = [1, 1, 1],
+            seed = 42,
+            plot = True,
+            save = False,
+            disable_verbose = False,
+            iter = 0,
+            save_dirpath = '.')
+model
 
-model = train(num_epochs = 30,
-              loss_func = crossEnt, 
-              group = group,
-              data_loaders = func_groups_dataloaders,
-              weight_decay = 1e-2,
-              lambda_lr = 0.9,
-              learning_rate = 5e-3,
-              seed = 42,
-              plot = True,
-              save = False,
-              iter = 0,
-              save_dirpath = '.') 
-model'''
 
 
 # In[12]:
 
 
-#total_params = sum(p.numel() for p in model.parameters())
-#print(f"Number of parameters: {total_params}")
+total_params = sum(p.numel() for p in model.parameters())
+print(f"Number of parameters: {total_params}")
 
 
 # In[13]:
@@ -671,17 +641,19 @@ def repeatabilityTest(method: str,
 
             
             model = train(num_epochs = num_epochs, 
-                        loss_func = loss_func, 
+                        loss_func = loss_func,
                         group = group,
                         data_loaders = func_groups_dataloaders,
                         weight_decay = 1e-2,
                         lambda_lr = 0.9,
-                        learning_rate = 1e-3, 
+                        learning_rate = 1e-2,
+                        kan_layers = [1, 1, 1],
                         seed = 42,
                         plot = True,
-                        save = False, 
-                        iter = iteration, 
-                        save_dirpath = save_dirpath)
+                        save = False,
+                        disable_verbose = False,
+                        iter = 0,
+                        save_dirpath = '.')
             
             print(trainingMetrics(model = model, 
                                    group = group,
@@ -711,8 +683,9 @@ def repeatabilityTest(method: str,
 '''
 crossEnt = torch.nn.BCELoss()
 
-repeatabilityTest(method = 'conv30VIII',
+repeatabilityTest(method = 'KAN31VIII',
                   loss_func = crossEnt,
                   num_iters = 1,
-                  num_epochs = 2)'''
+                  num_epochs = 2)
 
+'''
