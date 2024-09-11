@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.1">
+<title>Functional CNN-KAN.CNN_KAN API documentation</title>
+<meta name="description" content="">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>Functional CNN-KAN.CNN_KAN</code></h1>
+</header>
+<section id="section-intro">
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="Functional CNN-KAN.CNN_KAN.createHashmaps"><code class="name flex">
+<span>def <span class="ident">createHashmaps</span></span>(<span>test_ratio: float = 0.3, batch_size: int = 128)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Creates hashmaps containing FTIR data.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>test_ratio</code></strong> :&ensp;<code>float</code>, default <code>0.3</code></dt>
+<dd>Ratio of test dataset.</dd>
+<dt><strong><code>batch_size</code></strong> :&ensp;<code>int</code>, default <code>128</code></dt>
+<dd>Size of the batch.</dd>
+</dl></div>
+</dd>
+<dt id="Functional CNN-KAN.CNN_KAN.repeatabilityTest"><code class="name flex">
+<span>def <span class="ident">repeatabilityTest</span></span>(<span>method: str, loss_func, num_iters: int = 10, num_epochs: int = 30)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test to check the repeatability of the model over all functional groups.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>method</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name to distinguish results from each other.</dd>
+<dt><strong><code>loss_func</code></strong> :&ensp;<code>Any</code></dt>
+<dd>Loss function.</dd>
+<dt><strong><code>num_iters</code></strong> :&ensp;<code>int</code>, default <code>10</code></dt>
+<dd>Number of iterations for each functional group.</dd>
+<dt><strong><code>num_epochs</code></strong> :&ensp;<code>int</code>, default <code>30</code></dt>
+<dd>Number of epochs for each model training.</dd>
+</dl></div>
+</dd>
+<dt id="Functional CNN-KAN.CNN_KAN.testMetrics"><code class="name flex">
+<span>def <span class="ident">testMetrics</span></span>(<span>model: Functional CNN-KAN.CNN_KAN.CNN_KAN, group: str, data_loaders: dict, iter: int = 0, save_dirpath: str | os.PathLike | bytes = None) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Counts test metrics of the model.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>model</code></strong> :&ensp;<code>CNN</code></dt>
+<dd>Model object to see the perfomance of.</dd>
+<dt><strong><code>group</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of functional group.</dd>
+<dt><strong><code>data_loaders</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Data loaders hashmap object.</dd>
+<dt><strong><code>iter</code></strong> :&ensp;<code>int</code>, default <code>0</code></dt>
+<dd>Number of model testing iteration.</dd>
+<dt><strong><code>save_dirpath</code></strong> :&ensp;<code>str|os.PathLike|bytes</code>, default <code>None</code></dt>
+<dd>Directory path to save the plot.</dd>
+</dl></div>
+</dd>
+<dt id="Functional CNN-KAN.CNN_KAN.train"><code class="name flex">
+<span>def <span class="ident">train</span></span>(<span>num_epochs: int, loss_func, group: str, data_loaders: dict, weight_decay: float, lambda_lr: float, learning_rate: float = 1e-06, kan_layers: collections.abc.Iterable = [5, 5, 1], seed: int = 42, plot: bool = False, save: bool = False, disable_verbose: bool = False, iter: int = 0, save_dirpath: str | os.PathLike | bytes = None) ‑> Functional CNN-KAN.CNN_KAN.CNN_KAN</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Training of the functional groups finding CNN-KAN model</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>num_epochs</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of epochs for model learning.</dd>
+<dt><strong><code>loss_func</code></strong> :&ensp;<code>Any</code></dt>
+<dd>Loss function.</dd>
+<dt><strong><code>group</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of functional group.</dd>
+<dt><strong><code>data_loaders</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Data loaders hashmap object.</dd>
+<dt><strong><code>weight_decay</code></strong> :&ensp;<code>float</code></dt>
+<dd>Weight decay coefficient.</dd>
+<dt><strong><code>lambda_lr</code></strong> :&ensp;<code>float</code></dt>
+<dd>A multiplicative factor for lambda function.</dd>
+<dt><strong><code>learning_rate</code></strong> :&ensp;<code>float</code>, default <code>1e-6</code></dt>
+<dd>Models starting learning rate.</dd>
+<dt><strong><code>seed</code></strong> :&ensp;<code>int</code>, default <code>42</code></dt>
+<dd>Seed for random number generator for replicability.</dd>
+<dt><strong><code>plot</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If True then shows the loss plot.</dd>
+<dt><strong><code>save</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If True then saves the loss plot.</dd>
+<dt><strong><code>disable_verbose</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>Whether to disable the entire progressbar wrapper.</dd>
+<dt><strong><code>iter</code></strong> :&ensp;<code>int</code>, default <code>0</code></dt>
+<dd>Number of model testing iteration.</dd>
+<dt><strong><code>save_dirpath</code></strong> :&ensp;<code>str|os.PathLike|bytes</code>, default <code>None</code></dt>
+<dd>Directory path to save the plot.</dd>
+</dl></div>
+</dd>
+<dt id="Functional CNN-KAN.CNN_KAN.trainingMetrics"><code class="name flex">
+<span>def <span class="ident">trainingMetrics</span></span>(<span>model: Functional CNN-KAN.CNN_KAN.CNN_KAN, group: str, data_loaders: dict, iter: int = 0, save_dirpath: str | os.PathLike | bytes = None) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Counts training metrics of the model.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>model</code></strong> :&ensp;<code>CNN</code></dt>
+<dd>Model object to see the perfomance of.</dd>
+<dt><strong><code>group</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of functional group.</dd>
+<dt><strong><code>data_loaders</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Data loaders hashmap object.</dd>
+<dt><strong><code>iter</code></strong> :&ensp;<code>int</code>, default <code>0</code></dt>
+<dd>Number of model testing iteration.</dd>
+<dt><strong><code>save_dirpath</code></strong> :&ensp;<code>str|os.PathLike|bytes</code>, default <code>None</code></dt>
+<dd>Directory path to save the plot.</dd>
+</dl></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="Functional CNN-KAN.CNN_KAN.CNN_KAN"><code class="flex name class">
+<span>class <span class="ident">CNN_KAN</span></span>
+<span>(</span><span>kan_layers: list)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Functional groups recognition CNN-KAN model.</p>
+<p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CNN_KAN(torch.nn.Module):
+    &#39;&#39;&#39;
+    Functional groups recognition CNN-KAN model.
+    &#39;&#39;&#39;
+    def __init__(self, kan_layers: list) -&gt; None:
+        super(CNN_KAN, self).__init__()
+
+
+        kernel_size_1 = 5
+        stride_conv_1 = 1
+
+        stride_pool_1 = 3
+        filter_size_1 = 3
+
+        self.conv_1 = torch.nn.Conv1d(1, 10, kernel_size = kernel_size_1, stride = stride_conv_1)
+
+        self.pool_1 = torch.nn.MaxPool1d(filter_size_1, stride_pool_1)
+
+        self.conv_2 = torch.nn.Conv1d(10, 10, kernel_size = kernel_size_1, stride = stride_conv_1)
+
+        self.pool_2 = torch.nn.MaxPool1d(filter_size_1, stride_pool_1)
+
+        self.conv_3 = torch.nn.Conv1d(10, 10, kernel_size = kernel_size_1, stride = stride_conv_1)
+
+        self.pool_3 = torch.nn.MaxPool1d(filter_size_1, stride_pool_1)
+
+        self.kan = KAN([1130] + kan_layers).to(device)
+
+
+    def forward(self, x):
+        bs, c, h, w = x.shape
+        x = x.reshape(bs, c, h * w)
+        out = self.conv_1(x)
+        out = F.tanh(out)
+        out = self.pool_1(out)
+
+        out = self.conv_2(out)
+        out = F.tanh(out)
+        out = self.pool_2(out)
+        
+        out = self.conv_3(out)
+        out = F.tanh(out)
+        out = self.pool_3(out)
+
+        out = out.reshape(x.shape[0], 1, out.shape[2] * out.shape[1])
+
+        out = self.kan(out)
+        out = F.sigmoid(out)
+        return out.squeeze(1)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="Functional CNN-KAN.CNN_KAN.CNN_KAN.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+</dd>
+</dl>
+</dd>
+<dt id="Functional CNN-KAN.CNN_KAN.FunctionalGroupsDataset"><code class="flex name class">
+<span>class <span class="ident">FunctionalGroupsDataset</span></span>
+<span>(</span><span>func_group, convert_to: str = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An abstract class representing a :class:<code>Dataset</code>.</p>
+<p>All datasets that represent a map from keys to data samples should subclass
+it. All subclasses should overwrite :meth:<code>__getitem__</code>, supporting fetching a
+data sample for a given key. Subclasses could also optionally overwrite
+:meth:<code>__len__</code>, which is expected to return the size of the dataset by many
+:class:<code>~torch.utils.data.Sampler</code> implementations and the default options
+of :class:<code>~torch.utils.data.DataLoader</code>. Subclasses could also
+optionally implement :meth:<code>__getitems__</code>, for speedup batched samples
+loading. This method accepts list of indices of samples of batch and returns
+list of samples.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>:class:<code>~torch.utils.data.DataLoader</code> by default constructs an index
+sampler that yields integral indices.
+To make it work with a map-style
+dataset with non-integral indices/keys, a custom sampler must be provided.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FunctionalGroupsDataset(Dataset):
+    def __init__(self, func_group, convert_to: str = None) -&gt; None:
+        self.convert_to = convert_to
+        self.func_group_number = np.where(func_group_names.values==func_group)[0][0]
+        self.main_dir = os.path.join(&#39;..&#39;, &#39;ALL&#39;)
+        self.func_group = func_group
+
+        #NIST IDs that passed preprocessing
+        preprocessed_data_dir = pd.DataFrame(os.listdir(os.path.join(self.main_dir, &#39;preprocessed_data&#39;)))
+
+
+        if func_group not in os.listdir(os.path.join(self.main_dir, &#39;functional_groups&#39;)):
+            raise ValueError(f&#39;{func_group} is not present in our database.&#39;)
+        else:
+            #All NIST IDs of specific functional group
+            func_group_data_dir = pd.DataFrame(os.listdir(os.path.join(self.main_dir, &#39;functional_groups&#39;, func_group)))
+
+        #NIST IDs of specific functional group that passed preprocessing
+        to_sample = pd.merge(preprocessed_data_dir, func_group_data_dir, on = [0, 0], how = &#39;outer&#39;, indicator = True).query(&#39;_merge==&#34;left_only&#34;&#39;)[0]
+        
+        #Equinumerous dataset of preprocessed functional group NIST IDs and shuffled from every other functional groups
+        if len(to_sample) &lt; len(func_group_data_dir):
+            func_group_data_dir = func_group_data_dir.sample(len(to_sample))
+            self.data = pd.concat([to_sample.sample(len(to_sample)), func_group_data_dir], axis=0)
+        else:
+            self.data = pd.concat([to_sample.sample(len(func_group_data_dir)), func_group_data_dir], axis=0)
+
+    def __len__(self):
+        return len(self.data)
+    
+    def __getitem__(self, index):
+        file_path = os.path.join(self.main_dir, &#39;preprocessed_data&#39;, self.data.iloc[index][0])
+        file = pd.read_csv(file_path)
+        spectraType = file[&#39;spectraType&#39;][0]
+
+
+
+        #Converts data
+        if not self.convert_to:
+            spectra = torch.nan_to_num(torch.tensor(file[&#39;y&#39;].values, requires_grad=True)).to(torch.float)
+
+        elif self.convert_to.lower() not in (&#39;absorbance&#39;, &#39;absorbancja&#39;, &#39;transmittance&#39;, &#39;transmitancja&#39;):
+            raise ValueError(f&#39;Cant convert to {self.convert_to}.&#39;)
+
+        elif self.convert_to.lower() != str(spectraType).lower():
+            spectra = torch.nan_to_num(torch.tensor(np.abs(1-file[&#39;y&#39;].values), requires_grad=True)).to(torch.float)
+        
+        else:
+            spectra = torch.nan_to_num(torch.tensor(file[&#39;y&#39;].values, requires_grad=True)).to(torch.float)
+
+        #Reshapes it as required
+        spectra = spectra.reshape(1,1,3106)
+        
+        #Prevents unknown problem with NaN from before
+        funcGroup = torch.nan_to_num(torch.tensor(file[&#39;funcGroups&#39;].values[self.func_group_number], requires_grad=True)).to(torch.float)
+
+        return spectra, funcGroup</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.utils.data.dataset.Dataset</li>
+<li>typing.Generic</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="Functional CNN-KAN" href="index.html">Functional CNN-KAN</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="Functional CNN-KAN.CNN_KAN.createHashmaps" href="#Functional CNN-KAN.CNN_KAN.createHashmaps">createHashmaps</a></code></li>
+<li><code><a title="Functional CNN-KAN.CNN_KAN.repeatabilityTest" href="#Functional CNN-KAN.CNN_KAN.repeatabilityTest">repeatabilityTest</a></code></li>
+<li><code><a title="Functional CNN-KAN.CNN_KAN.testMetrics" href="#Functional CNN-KAN.CNN_KAN.testMetrics">testMetrics</a></code></li>
+<li><code><a title="Functional CNN-KAN.CNN_KAN.train" href="#Functional CNN-KAN.CNN_KAN.train">train</a></code></li>
+<li><code><a title="Functional CNN-KAN.CNN_KAN.trainingMetrics" href="#Functional CNN-KAN.CNN_KAN.trainingMetrics">trainingMetrics</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="Functional CNN-KAN.CNN_KAN.CNN_KAN" href="#Functional CNN-KAN.CNN_KAN.CNN_KAN">CNN_KAN</a></code></h4>
+<ul class="">
+<li><code><a title="Functional CNN-KAN.CNN_KAN.CNN_KAN.forward" href="#Functional CNN-KAN.CNN_KAN.CNN_KAN.forward">forward</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="Functional CNN-KAN.CNN_KAN.FunctionalGroupsDataset" href="#Functional CNN-KAN.CNN_KAN.FunctionalGroupsDataset">FunctionalGroupsDataset</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.1</a>.</p>
+</footer>
+</body>
+</html>
